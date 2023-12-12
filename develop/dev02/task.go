@@ -1,5 +1,12 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"unicode"
+)
+
 /*
 === Задача на распаковку ===
 
@@ -18,6 +25,36 @@ package main
 Функция должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
+func UnpackStr(s string) (string, error) {
+	var last rune
+	var sb strings.Builder
 
+	for _, r := range s {
+		if unicode.IsDigit(r) {
+			if unicode.IsDigit(last) || last == 0 {
+				err := fmt.Sprintf("the string '%s' isn't correct", s)
+				return s, errors.New(err)
+			}
+			if repeat := int(r - '1'); repeat >= 0 {
+				str := strings.Repeat(string(last), repeat)
+				sb.WriteString(str)
+			} else {
+				return s, errors.New("don`t use '0' in the string")
+			}
+		} else {
+			sb.WriteRune(r)
+		}
+		last = r
+	}
+
+	return sb.String(), nil
+}
+
+func main() {
+	s, err := UnpackStr(``)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(s)
+	}
 }
